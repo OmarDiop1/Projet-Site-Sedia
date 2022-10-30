@@ -1,0 +1,243 @@
+<form class="formulaire" method="post" action="">
+                Nom: <input type="text" name="nom" /><br>
+                Prénom: <input type="text" name="prenom" /> <br>
+                Date de Naissance: <input type="date" />
+                Lieu de Naissance : <select name="" id="">
+                    <option value></option>
+                    <option value></option>
+                    <option value></option>
+                </select>
+                <br>
+                Nationalité : <select name="" id="">
+                    <option value></option>
+                    <option value></option>
+                    <option value></option>
+                </select>
+                <br>
+                Adresse Postale : <input type="text" name="adressePostale" /><br>
+                Adresse du Siège Sociale (Si Différent de l'Adresse Postale) : <input type="text" name="adresseSiegeSociale" /> <br>
+                Objet Social : <input type="text" name="objetSocial"><br>
+                Nom Des Parents : <input type="text" name="nomParents">
+                Prénom Des Parents : <input type="text" name="prenomParents"> <br>
+
+                <!--Intégrer bouton pieces jointes -->
+                <input type="button" value="Valider">
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+<?php
+include_once("./src/header.inc.php");
+include_once("./bdd_connexion.php");
+
+
+if(isset($_POST['envoyer'])){
+
+    $nom = isset($_POST['name']) ? $_POST['name'] : '' ;
+    $prenom = isset($_POST['firstname']) ? $_POST['firstname'] : '' ;
+    $email = isset($_POST['email']) ? $_POST['email'] : '' ;
+    $telephone = isset($_POST['phone']) ? $_POST['phone'] : '' ;
+    $date = isset($_POST['dateNaissance']) ? $_POST['dateNaissance'] : '' ;
+    $niveau = isset($_POST['niveau']) ? $_POST['niveau'] : '' ;
+    $jour = isset($_POST['jour']) ? $_POST['jour'] : '' ;
+
+    if($langue === 'Portugais'){
+        $jour  = 'Vendredi avant le culte 19h-19h45';
+        $niveau = 'Débutants (A1-A2)';
+    }
+
+    if($langue === 'Anglais'){
+
+        if($niveau === 'Avancé (C1-C2)'){
+            $jour  = 'Dimanche avant le culte 8h45-9h45';
+
+        }elseif($niveau === 'Enfant'){
+
+            $jour  = 'Dimanche après le culte 13h-14h';
+
+        }elseif($niveau === 'Aide aux devoirs'){
+
+            $jour  = 'Dimanche avant le culte 8h45-9h45';
+        }
+    }
+
+    if(empty($nom) || empty($prenom) ||  empty($email)  ||  empty($langue) ||  empty($niveau) ||  empty($jour)){
+        header('Location: index.php?error=1');
+    }
+
+    $connect = DataBaseConnexion::getInstance();
+
+    $pdo = $connect->prepare('INSERT INTO inscription VALUES (NULL, :nom, :prenom, :email, :phone, :langue, :niveau, :jour)');
+
+    $pdo->bindValue(':nom', $nom, PDO::PARAM_STR);
+    $pdo->bindValue(':prenom', $prenom, PDO::PARAM_STR);
+    $pdo->bindValue(':email', $email, PDO::PARAM_STR);
+    $pdo->bindValue(':phone', $telephone, PDO::PARAM_STR);
+    $pdo->bindValue(':langue', $langue, PDO::PARAM_STR);
+    $pdo->bindValue(':niveau', $niveau, PDO::PARAM_STR);
+    $pdo->bindValue(':jour', $jour, PDO::PARAM_STR);
+
+    $insert = $pdo->execute();
+
+    if($insert){
+        $success =true;
+    }else{
+        $error = true;
+    }
+}
+?>
+
+<body>
+    <section class="banniere" id="banniere">
+        <div class="logo">
+            <img src="./image/logoSediaServices.jpg" alt="">
+        </div>
+        <div class="banniere-text">
+            <h1>Sedia Services</h1>
+            <p>Devenir Entrepreneur n'a jamais été aussi simple</p>
+        </div>
+        <div class="banniere_btn">
+
+            <a href="./index.php"> <span></span> En Savoir Plus</a>
+        </div>
+    </section>
+
+    <div class="sidebar">
+        <nav>
+            <ul>
+                <li><a href="./index.php">Retour à l'accueil</a></li>
+                <li><a href="./index(formulaire).php">Création d'Entreprise</a></li>
+
+            </ul>
+        </nav>
+    </div>
+    <div class="btn-menu">
+        <i class="fas fa-bars"></i>
+        <i class="fas fa-times"></i>
+    </div>
+
+    <section class="mission" id="mission">
+        <div class="titre-text">
+            <p>Avant de commencer</p>
+            <h1>Préparez vos Documents</h1>
+        </div>
+        <div class="mission_boite">
+
+        </div>
+    </section>
+
+
+
+    <section class="service" id="service">
+        <div class="titre-text">
+            <p></p>
+            <h1>Formulaire</h1>
+        </div>
+        <form action="./" method="post" name="form" class="needs-validation">
+            <div class="mb-3">
+                <label class="form-label"><span class="text-danger">*</span>Nom</label>
+                <input type="text" name="name" class="form-control" placeholder="Saisissez votre nom !" required>
+                <span class="invalid-feedback">Indiquez votre nom !</span>
+            </div>
+            <div class="mb-3">
+                <label class="form-label"><span class="text-danger">*</span>Prénom</label>
+                <input type="text" name="firstname" class="form-control" placeholder="Saisissez votre prénom !" required>
+                <span class="invalid-feedback">Indiquez votre prénom !</span>
+            </div>
+            <div class="mb-3">
+                <label class="form-label"><span class="text-danger">*</span>Email</label>
+                <input class="form-control" type="email" name="email" placeholder="votre@mail.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required />
+                <span class="invalid-feedback">Indiquez une adresse email valide !</span>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Téléphone</label>
+                <input type="text" name="phone" class="form-control" placeholder="09-99-99-99-99" data-masked="" data-inputmask="'mask': '09-99-99-99-99'" pattern="^0[1-9]{1}-[0-9]{2}-[0-9]{2}-[0-9]{2}-[0-9]{2}">
+                <span class="invalid-feedback">Format attendu : 09-99-99-99-99.</span>
+            </div>
+            <div class="mb-3">
+                <div class="text-left text-primary">
+                    <p style="font-size: 17px;margin-top:30px"><span class="text-danger">*</span> </p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><span class="text-danger">*</span>Date de Naissance</label>
+                    <input type="date" name="dateNaissance" class="form-control" placeholder="Saisissez votre Date de Naissance " required>
+                    <span class="invalid-feedback">Saisissez votre Date de Naissance</span>
+                </div>
+                <div class="card card-body">
+                    <div class="mb-3">
+                        <label class="form-label"><span class="text-danger">*</span>Lieu de Naissance</label>
+                        <select name="lieuNaissance" class="form-control form-select" id="lieuNaissance" required>
+
+                            <option value="" disabled selected>--Indiquez le Lieu de Naissance --</option>
+                            <option>France</option>
+                            <option>Autre...</option>
+                        </select>
+                        <span class="invalid-feedback">Indiquez Votre Lieu de Naissance.</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><span class="text-danger">*</span>Objet Social</label>
+                        <select name="objetSocial" class="form-control form-select" id="objetSocial" required>
+                            <option value="" disabled selected>--Indiquez l'Objet Social --</option>
+                            <option></option>
+                            <option></option>
+                            <option></option>
+                            <option></option>
+                            <option></option>
+                        </select>
+                        <span class="invalid-feedback">Indiquez Votre Lieu de Naissance.</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><span class="text-danger">*</span>Nom des Parents</label>
+                        <input type="text" name="parentNom" class="form-control" placeholder="Saisissez le nom de vos parents !" required>
+                        <span class="invalid-feedback">Saisissez le nom de vos parents</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><span class="text-danger">*</span>Prénom des Parents</label>
+                        <input type="text" name="parentPrenom" class="form-control" placeholder="Saisissez le prénom de vos parents" required>
+                        <span class="invalid-feedback">Saisissez le prénom de vos parents</span>
+                    </div>
+
+
+
+
+                    <div style="text-align: center">
+                        <button type="submit" style="background-color: #0c4bc0; color: white" class="text-left btn mt-3" name="envoyer">
+                            Valider l'inscription
+                        </button>
+                    </div>
+        </form>
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script src="./app/script.js"></script>
+    <script src="./app/bootstrap/js/bootstrap.js"></script>
+</body>
+
+</html>
